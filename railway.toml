@@ -1,0 +1,28 @@
+[build]
+builder = "DOCKERFILE"
+
+[[services]]
+name = "warp-api"
+source = "services/api"
+dockerfile = "services/api/Dockerfile"
+
+[services.deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+
+[[services]]
+name = "warp-wa-listener"
+source = "services/wa-listener"
+dockerfile = "services/wa-listener/Dockerfile"
+
+[services.deploy]
+startCommand = "node dist/index.js"
+
+[[services]]
+name = "warp-worker"
+# Worker needs monorepo root context to copy api/app
+dockerfile = "services/worker/Dockerfile"
+
+[services.deploy]
+startCommand = "python worker.py"
