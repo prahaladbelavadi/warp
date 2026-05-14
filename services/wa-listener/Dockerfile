@@ -11,8 +11,14 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+
+# Install all deps (including devDeps for tsc)
+RUN npm ci
+
 COPY . .
 RUN npm run build
+
+# Prune devDeps after build
+RUN npm prune --omit=dev
 
 CMD ["node", "dist/index.js"]
