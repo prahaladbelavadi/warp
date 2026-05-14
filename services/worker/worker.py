@@ -1,14 +1,14 @@
 """
 Standalone APScheduler worker — runs graph recompute jobs on schedule.
 Deployed as a separate Railway service sharing the same MongoDB.
-The worker Dockerfile copies services/api/app → /app/app so graph_engine is importable.
+graph_engine.py is co-located in this directory so no api dependency is needed.
 """
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 import asyncio
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.services.graph_engine import (
+from graph_engine import (
     recompute_all_edges,
     assign_contact_tiers,
     compute_30d_rolling,
