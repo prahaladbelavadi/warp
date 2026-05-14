@@ -1,5 +1,6 @@
 import { Client, LocalAuth, Message } from 'whatsapp-web.js';
 import { emitEvent } from './emitter';
+import { state } from './state';
 
 export function createClient(): Client {
   return new Client({
@@ -20,11 +21,15 @@ export function createClient(): Client {
 
 export function attachListeners(client: Client): void {
   client.on('qr', (qr) => {
-    console.log('[WARP] QR received. Scan to authenticate:');
+    state.qr = qr;
+    state.ready = false;
+    console.log('[WARP] QR received — open the QR page to scan');
     require('qrcode-terminal').generate(qr, { small: true });
   });
 
   client.on('ready', () => {
+    state.ready = true;
+    state.qr = null;
     console.log('[WARP] WA session ready');
     emitEvent({ type: 'session.ready', ts: Date.now() });
   });
