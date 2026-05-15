@@ -6,6 +6,8 @@ __pycache__/
 .pytest_cache/
 node_modules/
 dist/
+.next/
+.venv/
 .wwebjs_auth/
 .wwebjs_cache/
 /data/
