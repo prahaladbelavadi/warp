@@ -23,15 +23,40 @@ export function attachListeners(client: Client): void {
   client.on('qr', (qr) => {
     state.qr = qr;
     state.ready = false;
+    state.sessionStatus = 'qr';
     console.log('[WARP] QR received — open the QR page to scan');
     require('qrcode-terminal').generate(qr, { small: true });
+  });
+
+  client.on('loading_screen', (percent: number, message: string) => {
+    state.sessionStatus = 'loading';
+    state.loadingPercent = percent;
+    state.loadingMessage = message;
+    console.log(`[WARP] Loading ${percent}% — ${message}`);
+  });
+
+  client.on('authenticated', () => {
+    state.qr = null;
+    state.sessionStatus = 'loading';
+    console.log('[WARP] Authenticated');
   });
 
   client.on('ready', () => {
     state.ready = true;
     state.qr = null;
+    state.sessionStatus = 'ready';
+    state.loadingPercent = 100;
+    state.loadingMessage = 'Connected';
+    state.connectedAt = Date.now();
     console.log('[WARP] WA session ready');
     emitEvent({ type: 'session.ready', ts: Date.now() });
+  });
+
+  client.on('disconnected', (reason) => {
+    state.ready = false;
+    state.sessionStatus = 'disconnected';
+    console.error('[WARP] Disconnected:', reason);
+    process.exit(1);
   });
 
   client.on('message', async (msg: Message) => {
@@ -45,11 +70,6 @@ export function attachListeners(client: Client): void {
       const payload = await buildPayload(msg, 'outbound');
       await emitEvent({ type: 'message.sent', payload });
     }
-  });
-
-  client.on('disconnected', (reason) => {
-    console.error('[WARP] Disconnected:', reason);
-    process.exit(1);
   });
 }
 

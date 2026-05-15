@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db import get_db, ensure_indexes
-from app.routers import ingest, contacts, messages, graph
+from app.routers import ingest, contacts, messages, graph, status
 from app.config import settings
 import posthog
 
@@ -22,6 +22,7 @@ app.include_router(ingest.router)
 app.include_router(contacts.router)
 app.include_router(messages.router)
 app.include_router(graph.router)
+app.include_router(status.router)
 
 
 @app.get("/health")

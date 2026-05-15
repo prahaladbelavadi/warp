@@ -46,6 +46,17 @@ export function startServer(port = 3000): void {
     res.redirect('/login');
   });
 
+  // Public status — consumed by warp-api /status aggregator
+  app.get('/status', (_req: Request, res: Response) => {
+    res.json({
+      sessionStatus: state.sessionStatus,
+      loadingPercent: state.loadingPercent,
+      loadingMessage: state.loadingMessage,
+      ready: state.ready,
+      connectedAt: state.connectedAt,
+    });
+  });
+
   // QR as PNG data URL (polled by browser)
   app.get('/qr.png', requireAuth, async (_req: Request, res: Response) => {
     if (state.ready) {
